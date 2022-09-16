@@ -1,0 +1,34 @@
+#!/usr/bin/perl 
+use strict; 
+use warnings; 
+
+#Do a quick check to see if there were any timeout issues with previous runs.
+my $CheckNumberOfFilesWithTimeoutIssue = 0;
+$CheckNumberOfFilesWithTimeoutIssue = `grep "You are making requests too quickly" *.txt -l | wc -l`;
+if ($CheckNumberOfFilesWithTimeoutIssue > 0) {
+	print "There are $CheckNumberOfFilesWithTimeoutIssue files that timed out before collecting data from Discogs on previous runs.\nDo you want to fix these? <Press 1>\nOr run the full pull? <Press 2>";
+	my 	$UserInput = "";
+	our	$release_id = "";
+	$UserInput = <>;
+	If ($UserInput = 1 ) {
+		my $DiscogsIDList = `grep "You are making requests too quickly" *.txt -l | sed 's/.txt//g' | tr '\\n' '|'`;
+	       my @DiscogIDs = split(/\|/, $DiscogsIDList);
+	       foreach $release_id (@DiscogIDs ) {
+	   		print `curl https://api.discogs.com/releases/$release_id --user-agent \"FooBarApp/3.0\" > $release_id.txt`; 
+        		sleep(10); 
+		}
+		exit();
+	} 
+}
+
+my $file = '/home/old_man/Discogs/ReleaseIDs.txt'; 
+open my $info, $file or die "Could not open $file: $!"; 
+ 
+while( $release_id = <$info>)  {    
+        chomp($release_id); 
+        print "$release_id\n"; 
+        print `curl https://api.discogs.com/releases/$release_id --user-agent \"FooBarApp/3.0\" > $release_id.txt`; 
+        sleep(10); 
+        } 
+ 
+        close $info;
